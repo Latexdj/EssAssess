@@ -1,4 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+// Relative URL — requests go through Next.js rewrite proxy (next.config.ts)
+// so the browser never makes a cross-origin request and CORS is not needed.
+const BASE_URL = "/api/v1";
 
 export class ApiError extends Error {
   constructor(
