@@ -128,6 +128,7 @@ async def list_student_assignments(
         .options(
             selectinload(Assignment.rubric_criteria),
             selectinload(Assignment.class_subject).selectinload(ClassSubject.subject),
+            selectinload(Assignment.class_subject).selectinload(ClassSubject.teacher),
             selectinload(Assignment.class_subject).selectinload(ClassSubject.class_),
         )
         .order_by(Assignment.due_date)
