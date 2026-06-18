@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -6,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    # Database — accepts Railway's postgresql:// or our postgresql+asyncpg:// form
+    # Database — accepts Render's postgresql:// or our postgresql+asyncpg:// form
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/essassess"
 
     @field_validator("database_url", mode="before")
@@ -31,8 +32,9 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     max_file_size_mb: int = 10
 
-    # CORS — accepts JSON array or comma-separated string
-    cors_origins: list[str] = ["http://localhost:3000"]
+    # CORS — typed Any so pydantic-settings passes the raw string to our validator
+    # (list[str] causes pydantic-settings to JSON-parse the env var, breaking "*" or CSV values)
+    cors_origins: Any = ["http://localhost:3000"]
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -42,7 +44,9 @@ class Settings(BaseSettings):
             if v.startswith("["):
                 return json.loads(v)
             return [o.strip() for o in v.split(",") if o.strip()]
-        return v  # type: ignore[return-value]
+        if isinstance(v, list):
+            return v
+        return [str(v)]
 
 
 settings = Settings()
