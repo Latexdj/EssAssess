@@ -23,19 +23,34 @@ class LocalGradingAdapter(GradingPort):
     """
 
     async def grade(self, request: GradingRequest) -> GradingResponse:
-        from app.services.grading import prompt_builder, claude_client, response_parser
+        from app.services.grading import (
+            prompt_builder, claude_client, gemini_client, response_parser
+        )
+        from app.config import settings
 
-        # Build prompt (RAG context already embedded in request by orchestrator)
         system, user = prompt_builder.build_grading_prompt(request)
 
-        # Call Claude
+        # Pick provider: Claude if key present, else Gemini, else error
         try:
-            result = await claude_client.call_claude(
-                system=system,
-                user=user,
-                image_base64=request.image_base64,
-                image_media_type=request.image_media_type,
-            )
+            if settings.anthropic_api_key:
+                result = await claude_client.call_claude(
+                    system=system,
+                    user=user,
+                    image_base64=request.image_base64,
+                    image_media_type=request.image_media_type,
+                )
+            elif settings.google_api_key:
+                result = await gemini_client.call_gemini(
+                    system=system,
+                    user=user,
+                    image_base64=request.image_base64,
+                    image_media_type=request.image_media_type,
+                )
+            else:
+                raise RuntimeError(
+                    "No AI provider configured. Set ANTHROPIC_API_KEY (Claude) "
+                    "or GOOGLE_API_KEY (Gemini free tier)."
+                )
         except Exception as exc:
             return GradingResponse(
                 submission_id=request.submission_id,
@@ -49,7 +64,7 @@ class LocalGradingAdapter(GradingPort):
                 retrieved_chunk_ids=tuple(
                     c.id for c in (*request.reference_chunks, *request.example_chunks)
                 ),
-                error=f"Claude API error: {exc}",
+                error=f"Grading API error: {exc}",
             )
 
         # Parse response

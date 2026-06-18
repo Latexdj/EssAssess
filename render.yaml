@@ -22,10 +22,12 @@ services:
           property: connectionString
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: GOOGLE_API_KEY
+        sync: false          # free — set this to use Gemini 1.5 Flash for testing
       - key: ANTHROPIC_API_KEY
-        sync: false          # set manually in Render dashboard
+        sync: false          # paid — set this later to upgrade to Claude
       - key: OPENAI_API_KEY
-        sync: false
+        sync: false          # optional — only needed for RAG knowledge base
       - key: JWT_SECRET_KEY
         generateValue: true  # Render generates a secure random value
       - key: JWT_REFRESH_SECRET_KEY

@@ -22,9 +22,10 @@ class Settings(BaseSettings):
     jwt_access_expire_minutes: int = 30
     jwt_refresh_expire_days: int = 7
 
-    # AI
+    # AI — set ANTHROPIC_API_KEY for Claude (paid) or GOOGLE_API_KEY for Gemini (free)
     anthropic_api_key: str = ""
     openai_api_key: str = ""
+    google_api_key: str = ""
 
     # File storage
     upload_dir: str = "./uploads"
