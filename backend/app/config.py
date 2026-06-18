@@ -6,8 +6,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    # Database
+    # Database — accepts Railway's postgresql:// or our postgresql+asyncpg:// form
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/essassess"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def fix_db_url(cls, v: str) -> str:
+        if isinstance(v, str) and v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     # Auth
     jwt_secret_key: str = "dev-secret-key"
