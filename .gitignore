@@ -1,0 +1,33 @@
+# Logs
+*.log
+backend_stdout.log
+backend_stderr.log
+frontend_stdout.log
+
+# Environment files — never commit secrets
+.env
+.env.local
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Uploads (user data, not source)
+backend/uploads/
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# OS
+.DS_Store
+Thumbs.db
